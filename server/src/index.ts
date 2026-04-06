@@ -4,10 +4,8 @@ import { config } from "./config";
 import connectDB from "./configurations/db";
 import router from "./routes";
 import { errorHandler } from "./middlewares/errorHandler";
-import dotenv from "dotenv";
 import { checkRequiredEnv } from "./configurations/checkEnv";
 
-dotenv.config();
 checkRequiredEnv();
 
 const app = express();

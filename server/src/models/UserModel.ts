@@ -1,9 +1,10 @@
-import { Schema, model, Document } from "mongoose";
+import { Schema, model, Document, Types} from "mongoose";
 
 export interface IUser extends Document {
     name: string;
     email: string;
     password: string;
+    roles?: Types.ObjectId[];
 }
 
 const userSchema = new Schema<IUser>({
@@ -20,9 +21,24 @@ const userSchema = new Schema<IUser>({
         type: String,
         required: true,
         select: false
-    }
+    },
+    roles: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: "Role"
+        }
+    ]
 }, {
-    timestamps: true
+    timestamps: true,
+    toJSON: {
+        transform: (_, ret) => {
+            const {_id, __v, ...rest} = ret;
+            return {
+                id: _id,
+                ...rest
+            }
+        }
+    }
 })
 
 export const UserModel = model<IUser>("User", userSchema);

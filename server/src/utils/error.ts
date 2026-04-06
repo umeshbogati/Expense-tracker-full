@@ -6,3 +6,10 @@ export const NotFoundError = (message?: string): NotFound => {
         status: 404
     }
 }
+
+export const ForbiddenError = (message?: string) => {
+    return {
+        message: message || "Access forbidden",
+        status: 403
+    }
+}

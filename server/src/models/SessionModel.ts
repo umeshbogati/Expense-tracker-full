@@ -15,6 +15,21 @@ const sessionSchema = new Schema<ISession>({
     refreshToken: {
         type: String,
         required: true
+    },
+    expiresAt: {
+        type: Date,
+        required: true
+    }
+}, {
+    timestamps: true,
+    toJSON: {
+        transform: (_, ret) => {
+            const {_id, __v, ...rest} = ret;
+            return {
+                id: _id,
+                ...rest
+            }
+        }
     }
 })
 
