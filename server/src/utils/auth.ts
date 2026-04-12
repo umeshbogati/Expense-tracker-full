@@ -1,40 +1,31 @@
 import jwt from "jsonwebtoken";
-// import { IUser } from "../models/UserModel";
+import { IUser } from "../models/UserModel";
 import { config } from "../config";
-// import { UserWithRolesAndPermission } from "../interfaces/user";
+import { UserWithRolesAndPermission } from "../interfaces/user";
 
-export interface AccessTokenPayload {
-  id: string;
-  name: string;
-  email: string;
-  roles: string[];
-  permissions: string[];
+export const generateAccessToken = (user : UserWithRolesAndPermission, roles?: string[], permissions?: string[] ) => {
+    // Assignment_todo: Check whether JWT_SECRET is there or not (Need to create a function that checks against all required Secrets & does not open server if not present)
+
+    return jwt.sign(
+        {
+            userId: user.id,
+            email: user.email,
+            roles,
+            permissions
+        }, // payload
+        config.JWT_SECRET,
+        { "expiresIn": "30min" }
+    )
 }
 
-export const generateAccessToken = (payload: AccessTokenPayload) => {
-  return jwt.sign(
-    {
-      userId: payload.id,
-      name: payload.name,
-      email: payload.email,
-      roles: payload.roles,
-      permissions: payload.permissions,
-    },
-    config.JWT_SECRET,
-    { expiresIn: "1hrs" },
-  );
-};
 
-export const generateRefreshToken = (payload: {
-  id: string;
-  email: string;
-}) => {
-  return jwt.sign(
-    {
-      userId: payload.id,
-      email: payload.email,
-    },
-    config.JWT_REFRESH_SECRET,
-    { expiresIn: "30d" },
-  );
-};
+export const generateRefreshToken = (user : UserWithRolesAndPermission) => {
+    return jwt.sign(
+        {
+            userId: user.id,
+            email: user.email
+        },
+        config.JWT_SECRET, // Assignment: Use different secret for creating refresh token
+        { "expiresIn": "30d" }
+    )
+}

@@ -10,3 +10,7 @@ export const login = z.object({
     email: z.email(),
     password: z.string(),
 })
+
+export const logout = z.object({
+    refreshToken: z.string()
+})

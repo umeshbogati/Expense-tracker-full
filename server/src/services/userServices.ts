@@ -1,53 +1,42 @@
-import mongoose from "mongoose";
 import UserModel from "../models/UserModel";
+import mongoose from "mongoose";
 import RoleModel from "../models/RoleModel";
 
 export const getAll = async () => {
-  return await UserModel.find({}).populate({
-    path: "roles",
-    populate: {
-      path: "permissions",
-    },
-  });
-};
+    return await UserModel.find({}).populate({
+        path: "roles",
+        populate: {
+            path: "permissions"
+        }
+    });
+}
 
 export const getById = async (userId: string) => {
-  const user = await UserModel.findById(userId).populate({
-    path: "roles",
-    populate: {
-      path: "permissions",
-    },
-  });
+    return await UserModel.findById(userId).populate({
+        path: "roles",
+        populate: {
+            path: "permissions",
+        }
+    });
+}
 
-  if (!user) throw new Error("User not found");
-  return user;
-};
+export const updateUserRoles = async (userId: string, roles: string[]) => {
+    let roleIds: mongoose.Types.ObjectId[] = [];
 
-export const assignRolesToUser = async (userId: string, roleIds: string[]) => {
-  const user = await UserModel.findById(userId);
-  if (!user) throw new Error("User not found");
+    if (roles && roles.length > 0) {
+        const fetchedRoles = await RoleModel.find({ name: { $in: roles } });
 
-  const roles = await RoleModel.find({ _id: { $in: roleIds } });
-  if (roles.length !== roleIds.length) {
-    throw new Error("One or more roles do not exist");
-  }
+        roleIds = fetchedRoles.map(r => r._id);
 
-  const currentRoleIds = user.roles?.map((roleId) => roleId.toString()) ?? [];
-  const mergedRoleIds = Array.from(new Set([...currentRoleIds, ...roleIds]));
-  user.roles = mergedRoleIds.map((id) => new mongoose.Types.ObjectId(id));
-  await user.save();
+        if (roleIds.length !== roles.length) {
+            throw new Error("Some roles do not exist");
+        }
+    }
 
-  return await getById(userId);
-};
-
-export const removeRoleFromUser = async (userId: string, roleId: string) => {
-  const user = await UserModel.findById(userId);
-  if (!user) throw new Error("User not found");
-
-  user.roles = (user.roles ?? []).filter(
-    (currentRoleId) => currentRoleId.toString() !== roleId,
-  );
-  await user.save();
-
-  return await getById(userId);
-};
+    return await UserModel.findByIdAndUpdate(userId, { roles: roleIds }, { new: true }).populate({
+        path: "roles",
+        populate: {
+            path: "permissions",
+        }
+    });
+}
