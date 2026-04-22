@@ -1,71 +1,84 @@
-// src/pages/Register.tsx
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { registerSchema } from "../schemas/auth"; // define your Zod schema for register
+import { registerSchema } from "../schemas/auth";
 import {
   Box,
   Button,
-  TextField,
-  Typography,
   IconButton,
   InputAdornment,
+  Link as MuiLink,
+  Paper,
+  TextField,
+  Typography,
 } from "@mui/material";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { toast } from "react-toastify";
-import { register as registerAPI } from "../api/auth";
 import { z } from "zod";
+import { useAppDispatch } from "../hooks/storeHooks";
+import { registerUser } from "../store/slices/authSlice";
+import { useNavigate, Link } from "react-router";
+import { toast } from "react-toastify";
 
-// Type inferred from Zod schema
 export type RegisterFormData = z.infer<typeof registerSchema>;
 
 const Register = () => {
-  // react-hook-form setup
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+
   const {
     handleSubmit,
     register,
-    formState: { errors },
-  } = useForm<RegisterFormData>({
+    formState: { errors, isSubmitting },
+  } = useForm({
     resolver: zodResolver(registerSchema),
     mode: "onBlur",
   });
 
-  // State for show/hide password
-  const [showPassword, setShowPassword] = useState(false);
-
-  // Form submit
   const onSubmit = async (data: RegisterFormData) => {
-    console.log("Registration successful");
     try {
-      await registerAPI(data);
-      toast.success("Registration successful! Please login.");
-    } catch (error: any) {
-      console.error("Registration error:", error);
-      toast.error("Failed to register. Try again.");
+      await dispatch(registerUser(data)).unwrap();
+      toast.success("Account created! Please log in.");
+      navigate("/login");
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Registration failed. Please try again.",
+      );
     }
   };
 
   return (
     <Box
-      margin="40px auto"
-      maxWidth={600}
-      padding={4}
-      boxShadow="0 0 10px rgba(0,0,0,0.1)"
-      borderRadius={2}
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      minHeight="calc(100vh - 64px)"
+      px={2}
     >
-      <Typography variant="h4" textAlign="center" mb={4}>
-        Register
-      </Typography>
+      <Paper
+        elevation={3}
+        sx={{ p: 4, width: "100%", maxWidth: 440, borderRadius: 2 }}
+      >
+        <Typography variant="h5" fontWeight={700} mb={0.5} textAlign="center">
+          Create account
+        </Typography>
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          textAlign="center"
+          mb={3}
+        >
+          Start tracking your finances today
+        </Typography>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
         <Box
+          component="form"
+          onSubmit={handleSubmit(onSubmit)}
           display="flex"
           flexDirection="column"
           gap={2}
-          maxWidth={400}
-          mx="auto"
         >
-          {/* Name Input */}
           <TextField
             label="Name"
             {...register("name")}
@@ -73,8 +86,6 @@ const Register = () => {
             helperText={errors.name?.message}
             fullWidth
           />
-
-          {/* Email Input */}
           <TextField
             label="Email"
             type="email"
@@ -83,8 +94,6 @@ const Register = () => {
             helperText={errors.email?.message}
             fullWidth
           />
-
-          {/* Password Input with Show/Hide */}
           <TextField
             label="Password"
             type={showPassword ? "text" : "password"}
@@ -96,22 +105,35 @@ const Register = () => {
               endAdornment: (
                 <InputAdornment position="end">
                   <IconButton
-                    onClick={() => setShowPassword(!showPassword)}
+                    onClick={() => setShowPassword((p) => !p)}
                     edge="end"
+                    size="small"
+                    tabIndex={-1}
                   >
-                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                    {showPassword ? "🙈" : "👁️"}
                   </IconButton>
                 </InputAdornment>
               ),
             }}
           />
-
-          {/* Submit Button */}
-          <Button type="submit" variant="contained" color="primary" fullWidth>
-            Register
+          <Button
+            type="submit"
+            variant="contained"
+            fullWidth
+            disabled={isSubmitting}
+            sx={{ mt: 1, py: 1.2 }}
+          >
+            {isSubmitting ? "Creating account…" : "Register"}
           </Button>
         </Box>
-      </form>
+
+        <Typography variant="body2" textAlign="center" mt={3}>
+          Already have an account?{" "}
+          <MuiLink component={Link} to="/login">
+            Login
+          </MuiLink>
+        </Typography>
+      </Paper>
     </Box>
   );
 };

@@ -12,4 +12,8 @@ router.post("/", authenticate, authorizeWithPermission({ permissions: appPermiss
 
 router.get("/", authenticate, authorizeWithPermission({ permissions: appPermissions.VIEW_PERMISSIONS.name }), roleController.getAll);
 
+router.put("/:id", authenticate, authorizeWithPermission({ permissions: appPermissions.UPDATE_ROLES.name }), roleController.update);
+
+router.delete("/:id", authenticate, authorizeWithPermission({ permissions: appPermissions.DELETE_ROLES.name }), roleController.remove);
+
 export default router;

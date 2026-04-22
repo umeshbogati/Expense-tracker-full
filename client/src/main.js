@@ -1,0 +1,10 @@
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { createRoot } from "react-dom/client";
+import "./index.css";
+import "./root.css";
+import App from "./App";
+import { BrowserRouter } from "react-router";
+import { ToastContainer } from "react-toastify";
+import { store } from "./store/store";
+import { Provider } from "react-redux";
+createRoot(document.getElementById("root")).render(_jsxs(BrowserRouter, { children: [_jsx(Provider, { store: store, children: _jsx(App, {}) }), _jsx(ToastContainer, {})] }));

@@ -6,13 +6,14 @@ import { authenticate } from "../middlewares/authenticate";
 import { authorizeWithPermission } from "../middlewares/authorizeWithPermission";
 import appPermissions from "../constants/permission";
 
-
 const router = Router();
 
-// TODO: Add authorization and permissions here
 router.post("/", authenticate, authorizeWithPermission({ permissions: appPermissions.CREATE_CATEGORIES.name }), validateRequestBody(categorySchema.createCategory), categoryController.create);
 
-// TODO: Add authorization and permissions here
-router.get("/", authenticate, authorizeWithPermission({ permissions: appPermissions.VIEW_CATEGORIES.name }), categoryController.getAll);
+router.get("/", authenticate, categoryController.getAll);
+
+router.put("/:id", authenticate, authorizeWithPermission({ permissions: appPermissions.UPDATE_CATEGORIES.name }), categoryController.update);
+
+router.delete("/:id", authenticate, authorizeWithPermission({ permissions: appPermissions.DELETE_CATEGORIES.name }), categoryController.remove);
 
 export default router;

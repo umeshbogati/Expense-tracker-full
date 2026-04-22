@@ -1,27 +1,23 @@
 import cloudinary from "../configurations/cloudinary";
 
-export const uploadToCloudinary = async (
-  file: Express.Multer.File,
-  folderName: string
-): Promise<string> => {
-  try {
-    const uploaded = await new Promise<any>((resolve, reject) => {
-      cloudinary.uploader
-        .upload_stream(
-          { folder: folderName },
-          (error, result) => {
-            if (error) {
-              return reject(error);
-            }
-            resolve(result);
-          }
-        )
-        .end(file.buffer);
-    });
+export const uploadToCloudinary = async (file: Express.Multer.File): Promise<string> => {
+  const result = await new Promise<any>((resolve, reject) => {
+    cloudinary.uploader.upload_stream(
+      { folder: "receipts" },
+      (err, result) => {
+        if (err) reject(err);
+        else resolve(result);
+      }
+    ).end(file.buffer);
+  });
 
-    return uploaded.secure_url;
-  } catch (error) {
-    console.error("Cloudinary Upload Error:", error);
-    throw new Error("Failed to upload file to Cloudinary");
+  return result.secure_url;
+};
+
+export const deleteFromCloudinary = async (url: string): Promise<void> => {
+  const match = url.match(/\/upload\/(?:v\d+\/)?(.+)\.[^.]+$/);
+  const publicId = match?.[1];
+  if (publicId) {
+    await cloudinary.uploader.destroy(publicId);
   }
 };

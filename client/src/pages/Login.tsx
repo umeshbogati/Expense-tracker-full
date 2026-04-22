@@ -1,97 +1,90 @@
-import { useForm } from "react-hook-form";
+import { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from "@hookform/resolvers/zod";
-import { loginSchema } from "../schemas/auth";
-import { Box, Button, TextField, Typography } from "@mui/material";
+import { loginSchema } from '../schemas/auth';
+import { Box, Button, IconButton, InputAdornment, Link as MuiLink, Paper, TextField, Typography } from "@mui/material";
 import { z } from "zod";
-import { toast } from "react-toastify";
-import { useAppDispatch, useAppSelector } from "../hooks/storeHooks";
-import { loginUser } from "../store/slices/authSlice";
-import { useNavigate } from "react-router";
-import { useEffect } from "react";
+import { useAppDispatch, useAppSelector } from '../hooks/storeHooks';
+import { loginUser } from '../store/slices/authSlice';
+import { useNavigate, Link } from 'react-router';
+import { toast } from 'react-toastify';
 
-
-export type LoginFormData = z.infer<typeof loginSchema>;
+export type LoginFormData = z.infer<typeof loginSchema>
 
 const Login = () => {
-  const dispatch = useAppDispatch();
-  const { isAuthenticated, loading } = useAppSelector((state) => state.auth);
-  const navigate = useNavigate();
+    const dispatch = useAppDispatch();
+    const { isAuthenticated } = useAppSelector(state => state.auth);
+    const navigate = useNavigate();
+    const [showPassword, setShowPassword] = useState(false);
 
-  const {
-    handleSubmit,
-    register,
-    formState: { errors },
-  } = useForm({
-    resolver: zodResolver(loginSchema),
-    mode: "onBlur",
-  });
+    const { handleSubmit, register, formState: { errors, isSubmitting } } = useForm({
+        resolver: zodResolver(loginSchema),
+        mode: "onBlur",
+    });
 
-  const onSubmit = async (data: LoginFormData) => {
-    try {
-      dispatch(loginUser(data)).unwrap();
+    const onSubmit = async (data: LoginFormData) => {
+        try {
+            await dispatch(loginUser(data)).unwrap();
+            navigate("/");
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : "Login failed. Please check your credentials.");
+        }
+    };
 
-      toast("Successful login", { type: "success" });
-    } catch (error) {
-      console.log("Error :", error);
-      toast("Error logging in user", { type: "error" });
-    }
-  };
+    useEffect(() => {
+        if (isAuthenticated) navigate("/");
+    }, [isAuthenticated, navigate]);
 
-  // If user is logged in, they should not see LogIn page
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate("/");
-    }
-  }, [isAuthenticated, navigate]);
+    return (
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="calc(100vh - 64px)" px={2}>
+            <Paper elevation={3} sx={{ p: 4, width: "100%", maxWidth: 440, borderRadius: 2 }}>
+                <Typography variant="h5" fontWeight={700} mb={0.5} textAlign="center">
+                    Welcome back
+                </Typography>
+                <Typography variant="body2" color="text.secondary" textAlign="center" mb={3}>
+                    Sign in to your account
+                </Typography>
 
-  return (
-    <Box
-      margin="40px auto"
-      maxWidth={600}
-      padding={4}
-      boxShadow="0 0 10px rgba(0,0,0,0.1)"
-      borderRadius={2}
-    >
-      <Box>
-        <Typography variant="h1" fontSize={36}>
-          Login
-        </Typography>
-      </Box>
+                <Box component="form" onSubmit={handleSubmit(onSubmit)} display="flex" flexDirection="column" gap={2}>
+                    <TextField
+                        label="Email"
+                        type="email"
+                        {...register("email")}
+                        error={!!errors.email}
+                        helperText={errors.email?.message}
+                        fullWidth
+                    />
+                    <TextField
+                        label="Password"
+                        type={showPassword ? "text" : "password"}
+                        {...register("password")}
+                        error={!!errors.password}
+                        helperText={errors.password?.message}
+                        fullWidth
+                        slotProps={{
+                            input: {
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <IconButton onClick={() => setShowPassword(p => !p)} edge="end" size="small" tabIndex={-1}>
+                                            {showPassword ? "🙈" : "👁️"}
+                                        </IconButton>
+                                    </InputAdornment>
+                                )
+                            }
+                        }}
+                    />
+                    <Button type="submit" variant="contained" fullWidth disabled={isSubmitting} sx={{ mt: 1, py: 1.2 }}>
+                        {isSubmitting ? "Signing in…" : "Login"}
+                    </Button>
+                </Box>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <Box
-          display="flex"
-          flexDirection="column"
-          gap={2}
-          maxWidth={400}
-          margin="0 auto"
-        >
-          <TextField
-            label="Email"
-            {...register("email")}
-            error={!!errors.email}
-            helperText={errors.email?.message}
-          />
-          {/* // Toggle password show/hide based on an icon. Use `useState` to track the password */}
-          <TextField
-            label="Password"
-            {...register("password")}
-            error={!!errors.password}
-            helperText={errors.password?.message}
-          />
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            fullWidth
-            disabled={loading}
-          >
-            Login
-          </Button>
+                <Typography variant="body2" textAlign="center" mt={3}>
+                    Don't have an account?{" "}
+                    <MuiLink component={Link} to="/register">Register</MuiLink>
+                </Typography>
+            </Paper>
         </Box>
-      </form>
-    </Box>
-  );
+    );
 };
 
 export default Login;

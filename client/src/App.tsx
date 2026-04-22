@@ -7,6 +7,9 @@ import { clearTokens } from './utils/token';
 import { fetchMe } from './store/slices/userSlice';
 import { useEffect } from 'react';
 import { useNavigate }from 'react-router';
+import { ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
+
 
 function App() {
   const dispatch = useAppDispatch();
@@ -37,9 +40,10 @@ function App() {
     <>
       <Navbar />
 
-      {user && <h1>Welcome {user.name}</h1>}
+      
 
       <Router />
+       <ToastContainer position='top-right'  autoClose={4000} hideProgressBar={false} />
     </>
   )
 }
