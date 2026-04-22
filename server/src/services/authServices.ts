@@ -4,6 +4,7 @@ import UserModel from "../models/UserModel";
 import bcrypt from "bcrypt";
 import { generateAccessToken, generateRefreshToken } from "../utils/auth";
 import SessionModel from "../models/SessionModel";
+import { logger } from "../utils/logger";
 
 export const register = async (data: UserRegisterRequest) => {
     const { name, email, password } = data;
@@ -31,6 +32,7 @@ export const login = async (data: UserLoginRequest) => {
     }).select("+password") as UserWithRolesAndPermission;
 
     if (!user) {
+        logger.error("[AUTH-SERVICES] [LOGIN] Login failed - User not found")
         throw new Error("User not found");
     }
 
@@ -66,6 +68,7 @@ export const generateAccessTokenBasedOnRefreshToken = async (refreshToken: strin
     const session = await SessionModel.findOne({ refreshToken });
 
     if (!session) {
+
         throw new Error("Invalid refresh token");
     }
 
@@ -79,8 +82,14 @@ export const generateAccessTokenBasedOnRefreshToken = async (refreshToken: strin
     if (!user) {
         throw new Error("User not found");
     }
+
+
     const roles = user?.roles?.map((role) => role.name) ?? [];
+
+    
     const permissions = user?.roles?.flatMap((role) => role.permissions?.map((permission) => permission.name) ?? []) ?? [];
+
+    logger.info(`[AUTH-SERVICES] [GENERATE-ACCESS-TOKEN] Generating new access token for user: ${user.email} based on refresh token`)
 
     const accessToken = generateAccessToken(user, roles, permissions);
 

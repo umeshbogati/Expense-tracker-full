@@ -4,6 +4,7 @@ import { CreateTransactionRequest } from "../interfaces/transaction";
 import CategoryModel from "../models/CategoryModel";
 import TransactionModel from "../models/TransactionModel";
 import * as cloudinaryServices from "./cloudinaryServices";
+import { logger } from "../utils/logger";
 
 export const createTransaction =  async (data: CreateTransactionRequest, userId: string) => {
     const { type, category, description, amount, date, file } = data;
@@ -76,11 +77,11 @@ export const getByUserId = async (userId: string, query: TransactionQueryOPtions
     const { page = 1, limit = 10, type } = query;
     const filter: Record<string, unknown> = { userId: new Types.ObjectId(userId) };
 
+    logger.info(`[TRANSACTION-SERVICES] Fetching transactions for userId: ${userId}, page: ${page}, limit: ${limit}, type: ${type}`);
+
     if (type) {
         filter.type = type;
     }
-
-    console.log("Filter in service: ", filter);
 
     // For pagination, we can use skip and limit
     // "Skip" will skip the first (page-1)*limit records and "limit" will limit the number of records returned to the specified limit
@@ -98,15 +99,17 @@ export const getByUserId = async (userId: string, query: TransactionQueryOPtions
                 },
             }
         ])
-
     ]) 
-    
 
+    const totalIncome = (statsResult.find((s) => s._id === "Income")?.total as number) ?? 0;
+    const totalExpenses = (statsResult.find((s) => s._id === "Expense")?.total as number) ?? 0;
+    
     const meta = {
         total,
         page: Number(page),
         limit: Number(limit),
-        statsResult
+        totalIncome,
+        totalExpenses
     }
 
     return { data, meta }

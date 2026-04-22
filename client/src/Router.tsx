@@ -10,6 +10,7 @@ import AddTransaction from "./pages/AddTransaction";
 import Transactions from "./pages/transactions";
 import TransactionDetail from "./pages/TransactionDetail";
 import AdminPage from "./pages/admin/AdminPage";
+import EditTransaction from "./pages/EditTransaction";
 
 const Router = () => {
     return (
@@ -33,7 +34,7 @@ const Router = () => {
             <Route path="/transactions" element={<Transactions />} />
             <Route path="/transactions/add" element={<AddTransaction />} />
             <Route path="/transactions/:id" element={<TransactionDetail />} />
-            <Route path="/transactions/:id/edit" element={<AddTransaction />} />
+            <Route path="/transactions/:id/edit" element={<EditTransaction />} />
 
             <Route path="/admin" element={<AdminPage />} />
 

@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import * as authServices from "../services/authServices";
 import httpCodes from "../constants/httpCodes";
 import { successResponse } from "../utils/responseHelper";
+import { logger } from "../utils/logger";
 
 export const register = async (
     req: Request,
@@ -19,11 +20,16 @@ export const register = async (
 
 export const login = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        logger.info(`[AUTH-CONTROLLER] [AUTH-LOGIN] Login attempt for email: ${req.body.email}`);
+
         const response = await authServices.login(req.body);
+
+        logger.info(`[AUTH-CONTROLLER] [AUTH-LOGIN] Login attempt successful for email: ${req.body.email}`);
 
         return successResponse(res, { data: response })
     }
     catch (error) {
+        logger.error(`[AUTH-CONTROLLER] [AUTH-LOGIN] Login attempt failed for email: ${req.body.email}, error: ${error instanceof Error ? error.message : "Unknown error"}`);
         next(error);
     }
 }

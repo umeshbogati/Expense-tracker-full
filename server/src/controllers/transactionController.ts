@@ -60,7 +60,8 @@ export const getByUserId = async (
             page: page ? Number(page) : undefined,
             limit: limit ? Number(limit) : undefined,
             type: type ? String(type) : undefined
-        } );
+        });
+
         return successResponse(res, { data, meta });
     } catch (error) {
         next(error);
