@@ -1,15 +1,33 @@
 import type { Transaction, PopulatedTransaction, PaginatedTransactions } from "../../interfaces/transaction";
+export interface FetchUserTransactionsArg {
+    userId: string;
+    page?: number;
+    limit?: number;
+    type?: string;
+    categoryId?: string;
+    startDate?: string;
+    endDate?: string;
+}
+export interface PaginatedTransactionData {
+    data: PopulatedTransaction[];
+    pagination: {
+        page: number;
+        limit: number;
+        total: number;
+    };
+    stats: {
+        totalIncome: number;
+        totalExpenses: number;
+    };
+}
 export interface TransactionState {
     transactions: Transaction[];
-    userTransactions: PopulatedTransaction[];
+    userTransactions: PaginatedTransactionData;
+    recentTransactions: PaginatedTransactionData;
     currentTransaction: PopulatedTransaction | null;
-    pagination: {
-        page: number | undefined;
-        limit: number | undefined;
-        total: number | undefined;
-    };
     loading: boolean;
     loadingUserTransactions: boolean;
+    loadingRecentTransactions: boolean;
     loadingById: boolean;
 }
 export declare const fetchTransactions: import("@reduxjs/toolkit").AsyncThunk<Transaction[], void, {
@@ -22,13 +40,17 @@ export declare const fetchTransactions: import("@reduxjs/toolkit").AsyncThunk<Tr
     fulfilledMeta?: unknown;
     rejectedMeta?: unknown;
 }>;
-interface FetchUserTransactionsParams {
-    userId: string;
-    page?: number;
-    limit?: number;
-    type?: string;
-}
-export declare const fetchUserTransactions: import("@reduxjs/toolkit").AsyncThunk<PaginatedTransactions, FetchUserTransactionsParams, {
+export declare const fetchUserTransactions: import("@reduxjs/toolkit").AsyncThunk<PaginatedTransactions, FetchUserTransactionsArg, {
+    rejectValue: string;
+    state?: unknown;
+    dispatch?: import("@reduxjs/toolkit").ThunkDispatch<unknown, unknown, import("@reduxjs/toolkit").UnknownAction> | undefined;
+    extra?: unknown;
+    serializedErrorType?: unknown;
+    pendingMeta?: unknown;
+    fulfilledMeta?: unknown;
+    rejectedMeta?: unknown;
+}>;
+export declare const fetchRecentTransactions: import("@reduxjs/toolkit").AsyncThunk<PaginatedTransactions, FetchUserTransactionsArg, {
     rejectValue: string;
     state?: unknown;
     dispatch?: import("@reduxjs/toolkit").ThunkDispatch<unknown, unknown, import("@reduxjs/toolkit").UnknownAction> | undefined;

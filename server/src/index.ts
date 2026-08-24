@@ -23,5 +23,13 @@ app.listen(config.PORT, () => {
 })
 
 app.use("/api", router);
+app.get("/", (req, res) => {
+  console.log("Site is running");
+
+  res.status(200).json({
+    success: true,
+    message: "Queueflow backend is running"
+  });
+});
 
 app.use(errorHandler);

@@ -74,7 +74,7 @@ const GuestHome = () => {
 const Dashboard = () => {
     const dispatch = useAppDispatch();
     const { userId } = useAppSelector((state) => state.auth);
-    const { userTransactions, loadingTransactions } = useAppSelector((state) => state.transactions);
+    const { userTransactions, loadingUserTransactions } = useAppSelector((state) => state.transactions);
     const { totalIncome, totalExpenses } = userTransactions.stats;
     const netBalance = totalIncome - totalExpenses;
 
@@ -123,7 +123,7 @@ const Dashboard = () => {
                 </Button>
             </Box>
 
-            {loadingTransactions ? (
+            {loadingUserTransactions ? (
                 <Box display="flex" justifyContent="center" py={4}>
                     <CircularProgress />
                 </Box>

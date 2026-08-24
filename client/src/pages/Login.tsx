@@ -61,16 +61,14 @@ const Login = () => {
                         error={!!errors.password}
                         helperText={errors.password?.message}
                         fullWidth
-                        slotProps={{
-                            input: {
-                                endAdornment: (
-                                    <InputAdornment position="end">
-                                        <IconButton onClick={() => setShowPassword(p => !p)} edge="end" size="small" tabIndex={-1}>
-                                            {showPassword ? "🙈" : "👁️"}
-                                        </IconButton>
-                                    </InputAdornment>
-                                )
-                            }
+                        InputProps={{
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton onClick={() => setShowPassword(p => !p)} edge="end" size="small" tabIndex={-1}>
+                                        {showPassword ? "🙈" : "👁️"}
+                                    </IconButton>
+                                </InputAdornment>
+                            )
                         }}
                     />
                     <Button type="submit" variant="contained" fullWidth disabled={isSubmitting} sx={{ mt: 1, py: 1.2 }}>
