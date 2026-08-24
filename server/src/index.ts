@@ -13,7 +13,10 @@ const app = express();
 connectDB();
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({ origin: [
+      "http://localhost:5173",
+      "https://expenseclient-eight.vercel.app/",
+    ],credentials:true}));
 
 const morganStream = { write: (message: string) => logger.http(message.trim())};
 app.use(morgan("combined", { stream: morganStream }));
